@@ -1,0 +1,4 @@
+## Interface: 90105
+## Title: Lithe
+## Notes: A luminescent addon that speaks with a lisp.
+## Version: 0.0.1
