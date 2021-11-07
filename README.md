@@ -39,3 +39,7 @@ you are on your own in that case.
 
 ## Building
 `make install`
+
+## misc notes
+1. lua-wow allows redefining global math functions, however WoW does not
+1. you may inline lua or js code buy putting it in between pipes |

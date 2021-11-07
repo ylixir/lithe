@@ -9,4 +9,5 @@ in with pkgs;
   # lua5_4
   lua-wow
   gnumake
+  envsubst
 ]
