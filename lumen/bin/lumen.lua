@@ -613,26 +613,69 @@ function setenv(k, ...)
   end
 end
 local math = math
-abs = math.abs
-acos = math.acos
-asin = math.asin
-atan = math.atan
-atan2 = math.atan2
-ceil = math.ceil
-cos = math.cos
-floor = math.floor
-log = math.log
-log10 = math.log10
-max = math.max
-min = math.min
-pow = math.pow
-random = math.random
-sin = math.sin
-sinh = math.sinh
-sqrt = math.sqrt
-tan = math.tan
-tanh = math.tanh
-trunc = math.floor
+setenv("global-math", {_stash = true, macro = function (name)
+  return {"if", {"nil?", name}, {"define-global", name, {"get", "math", {"quote", name}}}}
+end})
+if nil63(abs) then
+  abs = math.abs
+end
+if nil63(acos) then
+  acos = math.acos
+end
+if nil63(asin) then
+  asin = math.asin
+end
+if nil63(atan) then
+  atan = math.atan
+end
+if nil63(atan2) then
+  atan2 = math.atan2
+end
+if nil63(ceil) then
+  ceil = math.ceil
+end
+if nil63(cos) then
+  cos = math.cos
+end
+if nil63(floor) then
+  floor = math.floor
+end
+if nil63(log) then
+  log = math.log
+end
+if nil63(log10) then
+  log10 = math.log10
+end
+if nil63(max) then
+  max = math.max
+end
+if nil63(min) then
+  min = math.min
+end
+if nil63(pow) then
+  pow = math.pow
+end
+if nil63(random) then
+  random = math.random
+end
+if nil63(sin) then
+  sin = math.sin
+end
+if nil63(sinh) then
+  sinh = math.sinh
+end
+if nil63(sqrt) then
+  sqrt = math.sqrt
+end
+if nil63(tan) then
+  tan = math.tan
+end
+if nil63(tanh) then
+  tanh = math.tanh
+end
+if nil63(trunc) then
+  trunc = math.trunc
+end
 setenv("quote", {_stash = true, macro = function (form)
   return quoted(form)
 end})

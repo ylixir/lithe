@@ -718,26 +718,69 @@ error = function (x) {
   throw new Error(x);
 };
 var math = Math;
-abs = math.abs;
-acos = math.acos;
-asin = math.asin;
-atan = math.atan;
-atan2 = math.atan2;
-ceil = math.ceil;
-cos = math.cos;
-floor = math.floor;
-log = math.log;
-log10 = math.log10;
-max = math.max;
-min = math.min;
-pow = math.pow;
-random = math.random;
-sin = math.sin;
-sinh = math.sinh;
-sqrt = math.sqrt;
-tan = math.tan;
-tanh = math.tanh;
-trunc = math.floor;
+setenv("global-math", {_stash: true, macro: function (name) {
+  return ["if", ["nil?", name], ["define-global", name, ["get", "math", ["quote", name]]]];
+}});
+if (nil63(abs)) {
+  abs = math.abs;
+}
+if (nil63(acos)) {
+  acos = math.acos;
+}
+if (nil63(asin)) {
+  asin = math.asin;
+}
+if (nil63(atan)) {
+  atan = math.atan;
+}
+if (nil63(atan2)) {
+  atan2 = math.atan2;
+}
+if (nil63(ceil)) {
+  ceil = math.ceil;
+}
+if (nil63(cos)) {
+  cos = math.cos;
+}
+if (nil63(floor)) {
+  floor = math.floor;
+}
+if (nil63(log)) {
+  log = math.log;
+}
+if (nil63(log10)) {
+  log10 = math.log10;
+}
+if (nil63(max)) {
+  max = math.max;
+}
+if (nil63(min)) {
+  min = math.min;
+}
+if (nil63(pow)) {
+  pow = math.pow;
+}
+if (nil63(random)) {
+  random = math.random;
+}
+if (nil63(sin)) {
+  sin = math.sin;
+}
+if (nil63(sinh)) {
+  sinh = math.sinh;
+}
+if (nil63(sqrt)) {
+  sqrt = math.sqrt;
+}
+if (nil63(tan)) {
+  tan = math.tan;
+}
+if (nil63(tanh)) {
+  tanh = math.tanh;
+}
+if (nil63(trunc)) {
+  trunc = math.trunc;
+}
 setenv("quote", {_stash: true, macro: function (form) {
   return quoted(form);
 }});

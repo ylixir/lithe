@@ -19,6 +19,25 @@ from within the Warcraft client.
 1. You should be able to run the build from Linux, Windows Subsystem for Linux,
    or Mac OS X
 
+## Licensing
+See the LICENSE files for the full license.
+
+tl;dr:
+* Lumen code is can be modified and you aren't required to share your changes
+* The Lithe addon code can be modified, but you must share your changes
+* Do wtf you want with the code for managing build/ops machinery
+
+### License rationale
+I want to encourage people in the WoW addon community to be more explicit
+with their licenses so I'm trying to force their hand with an aggressive
+copyleft license.
+
+Mostly though I like my code to be free, so everything that isn't WoW specific
+gets the WTFPL ('cause it's funny).
+
+The original authors of Lumen used the BSD2, so we respect that and don't
+fold it into the AGPL.
+
 ## Why didn't you fork an existing tool?
 Sadly I haven't found a tool like this with an open license.
 Hack claims public domain, but that claim is not from the original author.
@@ -29,13 +48,25 @@ I haven't that isn't one of these, or a fork of one of these.
 Setup your environment: `cp .env.example .env` and then modify `.env` according
 to your system.
 
+### Build requirements
 Install the tools for managing the dev environment:
-* nix
+* Required
+** nix
+* Optional
 ** direnv
 ** lorri
 
 These tools work on Macs, Linux, and WSL. You can roll without these, but
 you are on your own in that case.
 
-## Building
-`make install`
+### Building
+If you aren't running lorri and direnv then you must enter the development
+environment by typing `. .env; nix run`. If you are running lorri and direnv
+then you will be automatically placed into the development environment after
+following the instructions from direnv to authorize it.
+
+You can do a full build by running `make install`.
+
+## misc notes
+1. lua-wow allows redefining global math functions, however WoW does not
+1. you may inline lua or js code buy putting it in between pipes |
