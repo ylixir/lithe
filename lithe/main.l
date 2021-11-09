@@ -4,18 +4,67 @@
   (define addon-env T)
 )
 
-(define compile (get (get addon-env 'compiler) 'compile))
-(define expand (get (get addon-env 'compiler) 'expand))
-(define run (get (get addon-env 'compiler) 'run))
-(define read-string (get (get addon-env 'reader) 'read-string))
+; why doesn't this work with the macro from macros.l?
+; it is literally copy pasted (with debug/traceback checks)?
+(define-macro wow-guard (expr)
+  `(list (xpcall
+           (fn () ,expr)
+           (fn (m)
+               (if (obj? m) m
+                 ; WoW doesn't have a debug table
+                 (obj
+                   stack: (debugstack)
+                   message: (if
+                              (string? m) (clip m (+ (or (search m ": ") -2) 2))
+                              (nil? m) ""
+                              (str m))))))))
 
-(define test-code "(do
-(define-macro test (in) `(+ ,in 1))
-(print (test 1)))")
+; this is just a middleware function to log the results of a guard
+; it doesn't change them, only passes them through
+(define guard-log ((ok err))
+  (if
+    (not ok) (let ((:message :stack) err)
+               (print (cat "error: " message "\n" stack)))
+    (is? v) (print (str v)))
+  (list ok err))
 
-(let (body (read-string test-code)
-           form (expand body)
-           result (compile form))
-  (print "with read-string")
-  (print result)
-  (run result))
+; thread-first/pipe macro
+(define-macro -> (value rest: functions)
+  (if
+    (none? functions) value
+    (let (
+          ((f rest: parameters) :rest) functions
+          new-value `(,f ,value ,@parameters))
+      `(-> ,new-value ,@rest))))
+
+; thread-last/pipe macro
+(define-macro ->> (value rest: functions)
+  (if
+    (none? functions) value
+    (let (
+          ((f rest: parameters) :rest) functions
+          new-value `(,f ,@parameters ,value))
+      `(-> ,new-value ,@rest))))
+
+(let (
+      (:compile :expand :run) (get addon-env 'compiler)
+      (:read-string :stream :read-all) (get addon-env 'reader))
+  (define-global %result)
+  (define run-string (s)
+    (->> s
+         ;(read-string) this only evaluates one expression
+         (stream)
+         (read-all)
+         ; wrapping our code in a do block prevents nil
+         ; errors from passing an implicit list of
+         ; expressions instead of a single expression
+         ; wrapping our code in an assignment prevents
+         ; lua from puking on things liike `(+ 1 1)`
+         ((fn (v) (expand `(set %result (do ,@v)))))
+         (compile)
+         ((fn (v) (wow-guard (run v))))
+         (guard-log))
+    (if (is? %result) (print (str %result)))))
+
+(define-global SLASH_LITHE_EVAL1 '/lt)
+(set (get SlashCmdList 'LITHE_EVAL) run-string)
