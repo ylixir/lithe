@@ -28,6 +28,11 @@
     (is? v) (print (str v)))
   (list ok err))
 
+; simulate the : operator in lua
+(define-macro :
+              (object function :rest)
+              `((get ,object function) ,object ,@rest))
+
 ; thread-first/pipe macro
 (define-macro -> (value rest: functions)
   (if
@@ -65,6 +70,21 @@
          ((fn (v) (wow-guard (run v))))
          (guard-log))
     (if (is? %result) (print (str %result)))))
+
+(let (
+      frame nil
+      input nil)
+  (define show-gui ()
+    (set frame (or frame (CreateFrame 'ScrollFrame  nil UIParent 'UIPanelScrollFrameTemplate)))
+    (: frame SetSize 300 200)
+    (: frame SetPoint 'CENTER)
+
+    (set input (or input (CreateFrame 'EditBox nil frame)))
+    (: input SetMultiLine true)
+    ;(: input SetFontObject ChatFontNormal)
+    (: input SetWidth 280)
+    (: frame SetScrollChild input)
+    ))
 
 (define-global SLASH_LITHE_EVAL1 '/lt)
 (set (get SlashCmdList 'LITHE_EVAL) run-string)
