@@ -54,9 +54,10 @@
 (let (
       (:compile :expand :run) (get addon-env 'compiler)
       (:read-string :stream :read-all) (get addon-env 'reader))
-  (define-global %result)
+  (define-global %lithe-repl-result)
   (define run-string (s)
-    (->> s
+      (set %lithe-repl-result nil)
+      (->> s
          ;(read-string) this only evaluates one expression
          (stream)
          (read-all)
@@ -65,11 +66,12 @@
          ; expressions instead of a single expression
          ; wrapping our code in an assignment prevents
          ; lua from puking on things liike `(+ 1 1)`
-         ((fn (v) (expand `(set %result (do ,@v)))))
+         ((fn (v) (expand `(set %lithe-repl-result (do ,@v)))))
          (compile)
-         ((fn (v) (wow-guard (run v))))
+         (run)
+         (wow-guard)
          (guard-log))
-    (if (is? %result) (print (str %result)))))
+      (if (is? %lithe-repl-result) (print (str %lithe-repl-result)))))
 
 (let (scroll nil)
   (define show-gui ()
