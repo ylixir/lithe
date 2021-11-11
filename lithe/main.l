@@ -28,10 +28,10 @@
     (is? v) (print (str v)))
   (list ok err))
 
-; simulate the : operator in lua
+; simulate the : sugar in lua
 (define-macro :
               (object function :rest)
-              `((get ,object function) ,object ,@rest))
+              `((get ,object ',function) ,object ,@rest))
 
 ; thread-first/pipe macro
 (define-macro -> (value rest: functions)
@@ -71,20 +71,25 @@
          (guard-log))
     (if (is? %result) (print (str %result)))))
 
-(let (
-      frame nil
-      input nil)
+(let (scroll nil)
   (define show-gui ()
-    (set frame (or frame (CreateFrame 'ScrollFrame  nil UIParent 'UIPanelScrollFrameTemplate)))
-    (: frame SetSize 300 200)
-    (: frame SetPoint 'CENTER)
+    (if
+      (and scroll (: scroll IsShown)) (: scroll Hide)
+      (and scroll (not (: scroll IsShown))) (: scroll Show)
+      (let (input (CreateFrame 'EditBox))
+        (set scroll (CreateFrame 'ScrollFrame  nil UIParent 'UIPanelScrollFrameTemplate))
+        (: scroll SetSize 300 200)
+        (: scroll SetPoint 'CENTER)
 
-    (set input (or input (CreateFrame 'EditBox nil frame)))
-    (: input SetMultiLine true)
-    ;(: input SetFontObject ChatFontNormal)
-    (: input SetWidth 280)
-    (: frame SetScrollChild input)
-    ))
+        (: input SetMultiLine true)
+        (: input SetFontObject ChatFontNormal)
+        (: input SetWidth 300)
+        (: input SetHeight 300)
+        (: input SetAutoFocus false) ; without this we can't unfocus
+        (: scroll SetScrollChild input)))))
+
+(define-global SLASH_LITHE_GUI1 '/lithe)
+(set (get SlashCmdList 'LITHE_GUI) show-gui)
 
 (define-global SLASH_LITHE_EVAL1 '/lt)
 (set (get SlashCmdList 'LITHE_EVAL) run-string)
