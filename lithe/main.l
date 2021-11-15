@@ -98,62 +98,125 @@
       (if (is? %lithe-repl-result) (print (str %lithe-repl-result)))))
 
 (let (lithe-gui-frame nil)
-  (define toggle-gui ()
+  (define show-gui ()
     (if
-      (and lithe-gui-frame (: lithe-gui-frame IsShown)) (: lithe-gui-frame Hide)
-      (and lithe-gui-frame (not (: lithe-gui-frame IsShown))) (: lithe-gui-frame Show)
-      (let (frame (CreateFrame 'Frame  nil UIParent 'BackdropTemplate)
-            scroll (CreateFrame 'ScrollFrame  nil frame 'UIPanelScrollFrameTemplate)
-            input (CreateFrame 'EditBox) ; childframe != scrollchild
-            ; scroll-texture (: scroll CreateTexture)
-            close-button (CreateFrame 'Button nil  frame 'UIPanelCloseButton)
-            run-button (CreateFrame 'Button nil  frame 'UIPanelButtonTemplate))
+      (and lithe-gui-frame (not (get LitheSavedVariables 'visible)))
+        (: lithe-gui-frame Show)
+      (not lithe-gui-frame)
+        (let (frame (CreateFrame 'Frame  nil UIParent 'BackdropTemplate)
+              scroll (CreateFrame 'ScrollFrame  nil frame 'UIPanelScrollFrameTemplate)
+              input (CreateFrame 'EditBox) ; childframe != scrollchild
+              ; scroll-texture (: scroll CreateTexture)
+              close-button (CreateFrame 'Button nil  frame 'UIPanelCloseButton)
+              resize-button (CreateFrame 'Button nil frame)
+              run-button (CreateFrame 'Button nil  frame 'UIPanelButtonTemplate))
+          (: frame SetBackdrop
+             (list
+               bgFile: "Interface/DialogFrame/UI-DialogBox-Background"
+               edgeFile: "Interface/DialogFrame/UI-DialogBox-Border"
+               tile: true
+               insets: (list left: 10 right: 10 top: 10 bottom: 10)
+               ))
+          (: frame EnableMouse true)
+          (: frame SetMovable true)
+          (: frame SetResizable true)
+          (: frame SetMinResize 100 100)
+          (: frame RegisterForDrag 'LeftButton)
+          (let ((:position :size) LitheSavedVariables)
+            (: frame SetSize (unpack size))
+            (: frame SetPoint (unpack position)))
+          (: frame SetScript 'OnDragStart (get frame 'StartMoving))
+          (: frame SetScript 'OnDragStop
+             (fn ()
+                 (: frame StopMovingOrSizing)
+                 (let (position (list (: frame GetPoint)))
+                   (set LitheSavedVariables
+                        (join LitheSavedVariables (list position: position))))))
+          (: run-button SetPoint 'TOPLEFT frame 'TOPLEFT 15 -15)
+          (: run-button SetText 'run)
+          (: run-button SetScript 'OnClick
+             (fn ()
+                 (run-string (get LitheSavedVariables 'script))))
 
-        (: frame SetBackdrop
-           (list
-             bgFile: "Interface/DialogFrame/UI-DialogBox-Background"
-             edgeFile: "Interface/DialogFrame/UI-DialogBox-Border"
-             tile: true
-             insets: (list left: 10 right: 10 top: 10 bottom: 10)
-             ))
-        (: frame SetSize 500 500)
-        (: frame SetPoint 'CENTER)
+          ; there seems to  be some magic associated with the close button
+          ; and it just works without us having to wire up messages
+          (: close-button SetPoint 'TOPRIGHT frame 'TOPRIGHT -10 -10)
+          (: close-button SetScript 'OnHide
+             (fn () (set (get LitheSavedVariables 'visible) false)))
+          (: close-button SetScript 'OnShow
+             (fn () (set (get LitheSavedVariables 'visible) true)))
 
-        (: run-button SetPoint 'TOPLEFT frame 'TOPLEFT 15 -15)
-        (: run-button SetText 'run)
-        (: run-button SetScript 'OnClick
-           (fn ()
-               (run-string (: input GetText))))
+          (: resize-button SetPoint 'BOTTOMRIGHT -10 10)
+          (: resize-button SetSize 20 20)
+          (: resize-button SetNormalTexture 'Interface/ChatFrame/UI-ChatIM-SizeGrabber-Up)
+          (: resize-button SetHighlightTexture 'Interface/ChatFrame/UI-ChatIM-SizeGrabber-Highlight)
+          (: resize-button SetPushedTexture 'Interface/ChatFrame/UI-ChatIM-SizeGrabber-Down)
+          (: resize-button SetScript 'OnMouseDown
+             (fn () (: frame StartSizing 'BOTTOMRIGHT)))
+          (: resize-button SetScript 'OnMouseUp
+             (fn () (: frame StopMovingOrSizing) (set (get LitheSavedVariables 'size) (list (: frame GetSize)))))
 
-        ; there seems to  be some magic associated with the close button
-        ; and it just works without us having to wire up messages
-        (: close-button SetPoint 'TOPRIGHT frame 'TOPRIGHT -10 -10)
+          ; for some reason the scroll bars are sticking out
+          ; hopefully the scrollbar is about the size of the close button
+          (: scroll SetPoint 'TOPRIGHT close-button 'BOTTOMLEFT)
+          (: scroll SetPoint 'BOTTOMLEFT frame 'BOTTOMLEFT 20 20)
+          ; (: scroll-texture SetAllPoints scroll)
+          ; (: scroll-texture SetColorTexture 0.8 0.7 0.7 0.7)
+          (: scroll SetScript 'OnMouseUp
+             (fn ()
+                   (: input SetCursorPosition (: input GetNumLetters))
+                   (: input SetFocus)))
 
-        ; for some reason the scroll bars are sticking out
-        ; hopefully the scrollbar is about the size of the close button
-        (: scroll SetPoint 'TOPRIGHT close-button 'BOTTOMLEFT)
-        (: scroll SetPoint 'BOTTOMLEFT frame 'BOTTOMLEFT 20 20)
-        ; (: scroll-texture SetAllPoints scroll)
-        ; (: scroll-texture SetColorTexture 0.8 0.7 0.7 0.7)
-        (: scroll SetScript 'OnMouseUp
-           (fn ()
-                 (: input SetCursorPosition (: input GetNumLetters))
-                 (: input SetFocus)))
+          (: input SetMultiLine true)
+          (: input SetText (get LitheSavedVariables 'script))
+          (: input SetFontObject ChatFontNormal)
+          (: input SetWidth (: scroll GetWidth))
+          (: input SetAutoFocus false) ; without this we can't unfocus
+          (: input SetScript 'OnTextChanged
+             (fn (input userInput)
+                 (set (get LitheSavedVariables 'script) (: input GetText))))
 
-        (: input SetMultiLine true)
-        (: input SetFontObject ChatFontNormal)
-        (: input SetWidth (: scroll GetWidth))
-        (: input SetAutoFocus false) ; without this we can't unfocus
+          ; note that the scrollchild is different than a normal parent-child
+          (: scroll SetScrollChild input)
 
-        ; note that the scrollchild is different than a normal parent-child
-        (: scroll SetScrollChild input)
+          (set lithe-gui-frame frame)
+          (set (get LitheSavedVariables 'visible) true)))))
 
-        (set lithe-gui-frame frame)
-        ))))
+(define defaults
+  (list
+    locale: 'system ; the system locale will be the value from (GetLocale)
+    position: (list 'CENTER nil 'CENTER 0 0)
+    script: "(print \"hello world!\")"
+    size: (list 500 500)
+    version: 0
+    visible: false))
 
-(define-global SLASH_LITHE_GUI1 '/lithe)
-(set (get SlashCmdList 'LITHE_GUI) toggle-gui)
-(toggle-gui) ; temporary while we work on it
+; we will only call this once the addon has loaded it's env vars
+(define main ()
+  (define-global SLASH_LITHE_GUI1 '/lithe)
+  (set (get SlashCmdList 'LITHE_GUI) show-gui)
+  (if (get LitheSavedVariables 'visible) (show-gui))
 
-(define-global SLASH_LITHE_EVAL1 '/lt)
-(set (get SlashCmdList 'LITHE_EVAL) run-string)
+  (define-global SLASH_LITHE_EVAL1 '/lt)
+  (set (get SlashCmdList 'LITHE_EVAL) run-string)
+)
+
+(let (
+      event-frame (CreateFrame 'Frame)
+      event-handlers
+       (list
+         ADDON_LOADED:
+         (fn (name)
+             (if (not (= addon-name name)) (return))
+             (if
+               (not LitheSavedVariables) (set LitheSavedVariables defaults)
+               (set LitheSavedVariables (join defaults LitheSavedVariables)))
+             (main))))
+  (each (k _) event-handlers
+        (: event-frame RegisterEvent k))
+  (: event-frame
+     SetScript 'OnEvent
+     (fn (frame event :rest)
+         (let (handler (get event-handlers event))
+           (and handler (apply handler rest))))))
+
