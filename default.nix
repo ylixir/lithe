@@ -11,8 +11,14 @@ let
   });
 in with pkgs;
 [
+  # the base environment
+  bash
+  coreutils
+  envsubst
+  gnumake
+
+  # the stuff that is more project specific
   # lua5_4
   lua-wow
-  gnumake
-  envsubst
+  nodejs-16_x
 ]
