@@ -719,66 +719,69 @@ error = function (x) {
 };
 var math = Math;
 setenv("global-math", {_stash: true, macro: function (name) {
-  return ["if", ["nil?", name], ["define-global", name, ["get", "math", ["quote", name]]]];
+  var ____x20 = ["target"];
+  ____x20.lua = ["=", name, "nil"];
+  ____x20.js = ["or", ["=", ["typeof", name], ["quote", "undefined"]], ["=", name, "null"]];
+  return ["if", ____x20, ["define-global", name, ["get", "math", ["quote", name]]]];
 }});
-if (nil63(abs)) {
+if (typeof(abs) === "undefined" || abs === null) {
   abs = math.abs;
 }
-if (nil63(acos)) {
+if (typeof(acos) === "undefined" || acos === null) {
   acos = math.acos;
 }
-if (nil63(asin)) {
+if (typeof(asin) === "undefined" || asin === null) {
   asin = math.asin;
 }
-if (nil63(atan)) {
+if (typeof(atan) === "undefined" || atan === null) {
   atan = math.atan;
 }
-if (nil63(atan2)) {
+if (typeof(atan2) === "undefined" || atan2 === null) {
   atan2 = math.atan2;
 }
-if (nil63(ceil)) {
+if (typeof(ceil) === "undefined" || ceil === null) {
   ceil = math.ceil;
 }
-if (nil63(cos)) {
+if (typeof(cos) === "undefined" || cos === null) {
   cos = math.cos;
 }
-if (nil63(floor)) {
+if (typeof(floor) === "undefined" || floor === null) {
   floor = math.floor;
 }
-if (nil63(log)) {
+if (typeof(log) === "undefined" || log === null) {
   log = math.log;
 }
-if (nil63(log10)) {
+if (typeof(log10) === "undefined" || log10 === null) {
   log10 = math.log10;
 }
-if (nil63(max)) {
+if (typeof(max) === "undefined" || max === null) {
   max = math.max;
 }
-if (nil63(min)) {
+if (typeof(min) === "undefined" || min === null) {
   min = math.min;
 }
-if (nil63(pow)) {
+if (typeof(pow) === "undefined" || pow === null) {
   pow = math.pow;
 }
-if (nil63(random)) {
+if (typeof(random) === "undefined" || random === null) {
   random = math.random;
 }
-if (nil63(sin)) {
+if (typeof(sin) === "undefined" || sin === null) {
   sin = math.sin;
 }
-if (nil63(sinh)) {
+if (typeof(sinh) === "undefined" || sinh === null) {
   sinh = math.sinh;
 }
-if (nil63(sqrt)) {
+if (typeof(sqrt) === "undefined" || sqrt === null) {
   sqrt = math.sqrt;
 }
-if (nil63(tan)) {
+if (typeof(tan) === "undefined" || tan === null) {
   tan = math.tan;
 }
-if (nil63(tanh)) {
+if (typeof(tanh) === "undefined" || tanh === null) {
   tanh = math.tanh;
 }
-if (nil63(trunc)) {
+if (typeof(trunc) === "undefined" || trunc === null) {
   trunc = math.trunc;
 }
 setenv("quote", {_stash: true, macro: function (form) {

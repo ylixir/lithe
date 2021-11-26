@@ -355,7 +355,10 @@
 
 ;; WoW gets _angry_ if we redefine these
 (define-macro global-math (name)
-              `(if (nil? ,name) (define-global ,name (get math ',name))))
+  `(if (target
+        js: (or (= (typeof ,name) 'undefined) (= ,name null))
+        lua: (= ,name nil))
+       (define-global ,name (get math ',name))))
 
 (global-math abs)
 (global-math acos)
