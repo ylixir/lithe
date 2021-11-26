@@ -16,6 +16,7 @@ in with pkgs;
   coreutils
   envsubst
   gnumake
+  zip
 
   # the stuff that is more project specific
   # lua5_4

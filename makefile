@@ -11,6 +11,11 @@ all:
 install: all
 	$(MAKE) -C lithe install
 
+zip: dist/Lithe.zip
+dist/Lithe.zip: all
+	cd dist && \
+	zip -r Lithe.zip Lithe
+
 uninstall: all
 	$(MAKE) -C lithe uninstall
 clean:
