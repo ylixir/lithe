@@ -614,66 +614,69 @@ function setenv(k, ...)
 end
 local math = math
 setenv("global-math", {_stash = true, macro = function (name)
-  return {"if", {"nil?", name}, {"define-global", name, {"get", "math", {"quote", name}}}}
+  local ____x34 = {"target"}
+  ____x34.lua = {"=", name, "nil"}
+  ____x34.js = {"or", {"=", {"typeof", name}, {"quote", "undefined"}}, {"=", name, "null"}}
+  return {"if", ____x34, {"define-global", name, {"get", "math", {"quote", name}}}}
 end})
-if nil63(abs) then
+if abs == nil then
   abs = math.abs
 end
-if nil63(acos) then
+if acos == nil then
   acos = math.acos
 end
-if nil63(asin) then
+if asin == nil then
   asin = math.asin
 end
-if nil63(atan) then
+if atan == nil then
   atan = math.atan
 end
-if nil63(atan2) then
+if atan2 == nil then
   atan2 = math.atan2
 end
-if nil63(ceil) then
+if ceil == nil then
   ceil = math.ceil
 end
-if nil63(cos) then
+if cos == nil then
   cos = math.cos
 end
-if nil63(floor) then
+if floor == nil then
   floor = math.floor
 end
-if nil63(log) then
+if log == nil then
   log = math.log
 end
-if nil63(log10) then
+if log10 == nil then
   log10 = math.log10
 end
-if nil63(max) then
+if max == nil then
   max = math.max
 end
-if nil63(min) then
+if min == nil then
   min = math.min
 end
-if nil63(pow) then
+if pow == nil then
   pow = math.pow
 end
-if nil63(random) then
+if random == nil then
   random = math.random
 end
-if nil63(sin) then
+if sin == nil then
   sin = math.sin
 end
-if nil63(sinh) then
+if sinh == nil then
   sinh = math.sinh
 end
-if nil63(sqrt) then
+if sqrt == nil then
   sqrt = math.sqrt
 end
-if nil63(tan) then
+if tan == nil then
   tan = math.tan
 end
-if nil63(tanh) then
+if tanh == nil then
   tanh = math.tanh
 end
-if nil63(trunc) then
+if trunc == nil then
   trunc = math.trunc
 end
 setenv("quote", {_stash = true, macro = function (form)
