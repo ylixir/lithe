@@ -1,0 +1,12 @@
+name: GitHub Actions on push
+on: [push]
+jobs:
+  compiler-freshness-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.4.0
+      - name: Install Nix
+        uses: cachix/install-nix-action@v16
+      - run: ./ci-cd.sh lumen-is-fresh
+      - run: ./ci-cd.sh lumen-passes
